@@ -1,5 +1,5 @@
 import {routeAction$, zod$, z} from "@builder.io/qwik-city";
-import {todoService} from "~/services/todo.service";
+import todoService from "~/services/todo.service";
 
 // eslint-disable-next-line qwik/loader-location
 export const createTodoAction = routeAction$(

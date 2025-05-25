@@ -17,18 +17,21 @@ export default component$(({todos, goToDetail$, unResearch$}: TodoSearchProps) =
         results.value = todos.filter(todo => todo.title.toLowerCase().includes(value.toLowerCase()));
     });
 
+    // eslint-disable-next-line qwik/no-use-visible-task
     useVisibleTask$(() => {
         if (titleInputRef.value) {
             setTimeout(() => {
                 titleInputRef.value?.focus();
             }, 10);
         }
-    });
+    },
+        { strategy: 'intersection-observer' }
+    );
 
     return (
         <>
             <div
-                onClick$={unResearch$}
+                onClick$={unResearch$.bind(null)}
                 class="bg-black/50 w-screen h-screen fixed z-40 top-0 left-0"
             ></div>
             <div
@@ -47,7 +50,7 @@ export default component$(({todos, goToDetail$, unResearch$}: TodoSearchProps) =
                         <div class="mt-4 space-y-4">
                             {results.value.map(todo => (
                                 <div
-                                    onClick$={() => goToDetail$(todo.id)}
+                                    onClick$={goToDetail$.bind(null, todo.id)}
                                     key={todo.id}
                                     class="flex cursor-pointer items-center gap-2 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
                                 >

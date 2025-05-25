@@ -1,7 +1,7 @@
 import {$, component$, useSignal} from '@builder.io/qwik';
 import {Link, routeLoader$} from '@builder.io/qwik-city';
 import {TodoInterface} from '~/types/todo.type';
-import {todoService} from "~/services/todo.service";
+import todoService from "~/services/todo.service";
 import {toggleTodoAction as useToggleTodo, updateTodoAction as useUpdateTodo,} from "~/actions/todo.actions";
 
 type TodoResult = {

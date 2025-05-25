@@ -1,4 +1,4 @@
-import {$, component$, Signal, useSignal, useVisibleTask$} from "@builder.io/qwik";
+import {$, component$, Signal} from "@builder.io/qwik";
 import {Form} from "@builder.io/qwik-city";
 
 export type TodoAddProps = {
@@ -7,21 +7,9 @@ export type TodoAddProps = {
 }
 
 export default component$(({showAddTodo,createTodoAction}: TodoAddProps) => {
-    const titleInputRef = useSignal<HTMLInputElement>();
 
     const handleSubmit = $(async () => {
         showAddTodo.value = false;
-    });
-
-    useVisibleTask$(({track}) => {
-        track(() => showAddTodo.value);
-
-        if (showAddTodo.value && titleInputRef.value) {
-            // Petit délai pour s'assurer que l'élément est rendu
-            setTimeout(() => {
-                titleInputRef.value?.focus();
-            }, 10);
-        }
     });
 
     return (
@@ -45,7 +33,6 @@ export default component$(({showAddTodo,createTodoAction}: TodoAddProps) => {
                         >
                             <h2 class="text-lg font-bold text-gray-900 mt-2 mb-4">Ajouter une tâche</h2>
                             <input
-                                ref={titleInputRef}
                                 type="text"
                                 id="title-input"
                                 name="title"

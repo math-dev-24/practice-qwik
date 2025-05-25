@@ -1,12 +1,9 @@
 import {$, component$, Slot, useSignal, useTask$, useVisibleTask$} from '@builder.io/qwik';
-import {Link, server$, useLocation, useNavigate} from '@builder.io/qwik-city';
+import {Link, useLocation, useNavigate} from '@builder.io/qwik-city';
 import TodoSearch from "~/components/todo/todo-search";
-import {todoService} from "~/services/todo.service";
 import {TodoInterface} from "~/types/todo.type";
+import {getTodos} from "~/server/todo.server";
 
-const useTodos = server$(async () => {
-  return await todoService.getAll();
-})
 
 export default component$(() => {
   const location = useLocation();
@@ -15,9 +12,10 @@ export default component$(() => {
   const todos = useSignal<TodoInterface[]>([]);
 
   useTask$(async () => {
-    todos.value = await useTodos();
-  })
+    todos.value = await getTodos();
+  });
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key.toLowerCase() === 'r' && (event.ctrlKey || event.metaKey)) {

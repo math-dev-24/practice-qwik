@@ -2,7 +2,7 @@ import {$, component$, useSignal, useVisibleTask$} from "@builder.io/qwik";
 import {routeLoader$} from "@builder.io/qwik-city";
 import TodoCard from "~/components/todo/todo-card";
 import type {TodoInterface} from "~/types/todo.type";
-import {todoService} from "~/services/todo.service";
+import todoService from "~/services/todo.service";
 
 import {
     createTodoAction as useCreateTodo,
@@ -39,6 +39,7 @@ export default component$(() => {
       await deleteTodoAction.submit({id});
   });
 
+    // eslint-disable-next-line qwik/no-use-visible-task
     useVisibleTask$(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key.toLowerCase() === 'c' && (event.ctrlKey || event.metaKey)) {
@@ -68,8 +69,8 @@ export default component$(() => {
             <TodoCard
               key={todo.id}
               data={todo}
-              onDelete={handleDelete}
-              onToggle={handleToggle}
+              onDelete$={handleDelete}
+              onToggle$={handleToggle}
             />
           ))}
         </div>
