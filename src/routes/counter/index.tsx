@@ -46,14 +46,6 @@ export default component$(() => {
   return (
     <div class="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-8">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div class="text-center mb-8">
-          <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
-            Compteur Interactif
-          </h1>
-          <p class="text-gray-600">Un compteur moderne avec des fonctionnalités avancées</p>
-        </div>
-
         {/* Main Counter Card */}
         <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden mb-6">
           {/* Header avec objectif */}
@@ -72,7 +64,7 @@ export default component$(() => {
                 )}
                 <button
                   onClick$={() => store.isVisible = !store.isVisible}
-                  class="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors duration-200"
+                  class="p-2 bg-white/20 cursor-pointer rounded-lg hover:bg-white/30 transition-colors duration-200"
                 >
                   {store.isVisible ? '👁️' : '🙈'}
                 </button>

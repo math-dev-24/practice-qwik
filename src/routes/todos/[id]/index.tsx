@@ -1,7 +1,7 @@
-import { component$, useSignal } from '@builder.io/qwik';
+import {$, component$, useSignal} from '@builder.io/qwik';
 import { routeLoader$, Link } from '@builder.io/qwik-city';
-import { getTodoById } from '~/server/api/todo';
 import { TodoInterface } from '~/types/todo.type';
+import {todoService} from "~/services/todo.service";
 
 type TodoResult = {
   status: 'success';
@@ -11,20 +11,20 @@ type TodoResult = {
   message: string;
 };
 
+import {
+  toggleTodoAction as useToggleTodo,
+    updateTodoAction as useUpdateTodo,
+} from "~/actions/todo.actions";
+
+export {useToggleTodo };
+
+
 export const useTodoDetail = routeLoader$<TodoResult>( 
   async ({params}) => {
     const id = parseInt(params.id);
-
-    if (isNaN(id)) {
-      return {
-        status: 'error',
-        message: 'ID invalide'
-      };
-    }
-    
     try {
-      const todo: TodoInterface | undefined = await getTodoById(id);
-      
+      const todo: TodoInterface | null = await todoService.getById(id);
+
       if (!todo) {
         return {
           status: 'error',
@@ -45,11 +45,41 @@ export const useTodoDetail = routeLoader$<TodoResult>(
   }
 );
 
+
 export default component$(() => {
   const result = useTodoDetail();
-  const isEditing = useSignal(false);
-  const editContent = useSignal('');
 
+  const toggleTodoAction = useToggleTodo();
+  const updateTodoAction = useUpdateTodo();
+
+  const isEditing = useSignal<boolean>(false);
+  const editContent = useSignal<string>('');
+
+  const handleUpdate = $(async (id: number, title: string, content: string, completed: boolean) => {
+    console.log('🔄 handleUpdate appelé avec:', id, title, content, completed);
+
+    // Vérifiez que updateTodoAction existe
+    console.log('🔍 updateTodoAction:', updateTodoAction);
+    console.log('🔍 updateTodoAction.submit:', updateTodoAction.submit);
+
+    try {
+      console.log('🔄 Avant submit');
+      const result = await updateTodoAction.submit({id, title, content, completed});
+      console.log('🔄 Après submit, résultat:', result);
+    } catch (error) {
+      console.error('❌ Erreur dans handleUpdate:', error);
+    }
+
+    isEditing.value = false;
+  });
+
+  const handleToggle = $(async (id: number, completed: boolean) => {
+    console.log('🔄 handleToggle appelé avec:', id,completed);
+    await toggleTodoAction.submit({id, completed});
+  });
+
+
+  // pas de tâche || erreur
   if (result.value.status === 'error') {
     return (
       <div class="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center p-4">
@@ -86,8 +116,7 @@ export default component$(() => {
               Retour aux todos
             </Link>
             <div class="flex items-center gap-2">
-              <span class="text-sm text-gray-500">Todo</span>
-              <span class="text-sm font-medium text-gray-900">#{todo.id}</span>
+              <span class="text-sm text-gray-500">Tâche #{todo.id}</span>
             </div>
           </div>
         </div>
@@ -104,7 +133,7 @@ export default component$(() => {
                   <span class="text-2xl">{todo.completed ? '✅' : '📝'}</span>
                 </div>
                 <div>
-                  <h1 class="text-2xl font-bold text-white mb-1">Détail du Todo</h1>
+                  <h1 class="text-2xl font-bold text-white mb-1">{todo.title}</h1>
                   <div class={`
                     inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium
                     ${todo.completed 
@@ -120,18 +149,21 @@ export default component$(() => {
               
               {/* Actions rapides */}
               <div class="flex items-center gap-2">
-                <button 
-                  onClick$={() => {
-                    if (!isEditing.value) {
-                      editContent.value = todo.content;
-                    }
-                    isEditing.value = !isEditing.value;
-                  }}
+                <button
+                    onClick$={() => {
+                      if (!isEditing.value) {
+                        editContent.value = todo.content;
+                      }
+                      isEditing.value = !isEditing.value;
+                    }}
                   class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors duration-200 text-sm font-medium"
                 >
                   {isEditing.value ? 'Annuler' : 'Modifier'}
                 </button>
-                <button class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors duration-200 text-sm font-medium">
+                <button
+                    onClick$={() => handleToggle(todo.id, !todo.completed)}
+                    class="px-4 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30 transition-colors duration-200 text-sm font-medium"
+                >
                   {todo.completed ? 'Marquer non terminé' : 'Marquer terminé'}
                 </button>
               </div>
@@ -149,7 +181,7 @@ export default component$(() => {
               
               {isEditing.value ? (
                 <div class="space-y-4">
-                  <textarea 
+                  <textarea
                     value={editContent.value}
                     onInput$={(e) => editContent.value = (e.target as HTMLTextAreaElement).value}
                     class="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
@@ -157,10 +189,13 @@ export default component$(() => {
                     placeholder="Contenu du todo..."
                   />
                   <div class="flex items-center gap-3">
-                    <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium">
+                    <button
+                        onClick$={() => handleUpdate(todo.id, todo.title, editContent.value, todo.completed)}
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+                    >
                       Sauvegarder
                     </button>
-                    <button 
+                    <button
                       onClick$={() => isEditing.value = false}
                       class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium"
                     >
@@ -169,7 +204,7 @@ export default component$(() => {
                   </div>
                 </div>
               ) : (
-                <div class="bg-gray-50 rounded-xl p-6 border-l-4 border-blue-500">
+                <div class="bg-gray-50 rounded-xl p-6">
                   <p class={`text-lg leading-relaxed ${todo.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                     {todo.content}
                   </p>
@@ -181,7 +216,7 @@ export default component$(() => {
             <div class="grid md:grid-cols-3 gap-6 mb-8">
               <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
                 <div class="flex items-center gap-3 mb-2">
-                  <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <div class="w-8 h-8 bg-blue-500 hover:outline-blue-500 hover:outline rounded-lg flex items-center justify-center">
                     <span class="text-white text-sm font-bold">#</span>
                   </div>
                   <h3 class="font-semibold text-gray-900">Identifiant</h3>
@@ -216,30 +251,6 @@ export default component$(() => {
                 </div>
               </div>
             </div>
-
-            {/* Actions principales */}
-            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-              <button class={`
-                flex-1 py-3 px-6 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2
-                ${todo.completed 
-                  ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 border border-yellow-300' 
-                  : 'bg-green-100 text-green-700 hover:bg-green-200 border border-green-300'
-                }
-              `}>
-                <span>{todo.completed ? '↺' : '✓'}</span>
-                {todo.completed ? 'Marquer non terminé' : 'Marquer comme terminé'}
-              </button>
-              
-              <button class="flex-1 py-3 px-6 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-medium transition-colors duration-200 flex items-center justify-center gap-2">
-                <span>📝</span>
-                Modifier le todo
-              </button>
-              
-              <button class="sm:flex-initial py-3 px-6 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 font-medium transition-colors duration-200 border border-red-300 flex items-center justify-center gap-2">
-                <span>🗑</span>
-                Supprimer
-              </button>
-            </div>
           </div>
         </div>
 
@@ -265,7 +276,7 @@ export default component$(() => {
                 <span class="text-2xl">➕</span>
                 <div>
                   <p class="font-medium text-gray-900">Créer un nouveau</p>
-                  <p class="text-sm text-gray-500">Ajouter un todo</p>
+                  <p class="text-sm text-gray-500">Ajouter un Tâches</p>
                 </div>
               </div>
             </button>

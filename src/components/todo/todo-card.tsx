@@ -1,15 +1,15 @@
 import { component$ } from "@builder.io/qwik";
-import { Link } from "@builder.io/qwik-city";
+import {Link} from "@builder.io/qwik-city";
 import { TodoInterface } from "~/types/todo.type";
 
 interface TodoCardProps {
   data: TodoInterface;
-  showActions?: boolean;
-  onToggle$?: (id: number) => void;
-  onDelete$?: (id: number) => void;
+  onDelete: (id: number) => void;
+  onToggle: (id: number, completed: boolean) => void;
 }
 
-export default component$<TodoCardProps>(({ data, showActions = true, onToggle$, onDelete$ }) => {
+export default component$<TodoCardProps>(({ data, onDelete, onToggle }) => {
+
   return (
     <div class={`
       group relative bg-white rounded-xl shadow-sm border border-gray-200 
@@ -24,7 +24,8 @@ export default component$<TodoCardProps>(({ data, showActions = true, onToggle$,
       
       <div class="p-4 pl-6">
         {/* Header avec ID et status */}
-        <div class="flex items-center justify-between mb-3">
+        <div class="flex flex-col mb-3">
+          <h3>{data.title}</h3>
           <div class="flex items-center gap-2">
             <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
               #{data.id}
@@ -42,11 +43,11 @@ export default component$<TodoCardProps>(({ data, showActions = true, onToggle$,
           </div>
           
           {/* Actions rapides */}
-          {showActions && (
+
             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              {onToggle$ && (
+
                 <button
-                  onClick$={() => onToggle$(data.id)}
+                  onClick$={() => onToggle(data.id, !data.completed)}
                   class={`
                     p-1.5 rounded-lg transition-colors duration-200 text-xs font-medium
                     ${data.completed 
@@ -58,19 +59,15 @@ export default component$<TodoCardProps>(({ data, showActions = true, onToggle$,
                 >
                   {data.completed ? '↺' : '✓'}
                 </button>
-              )}
-              
-              {onDelete$ && (
+
                 <button
-                  onClick$={() => onDelete$(data.id)}
+                  onClick$={() => onDelete(data.id)}
                   class="p-1.5 rounded-lg hover:bg-red-100 text-red-600 hover:text-red-700 transition-colors duration-200 text-xs"
                   title="Supprimer"
                 >
                   🗑
                 </button>
-              )}
             </div>
-          )}
         </div>
 
         {/* Contenu principal */}

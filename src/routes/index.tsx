@@ -3,9 +3,9 @@ import {type DocumentHead } from "@builder.io/qwik-city";
 
 export default component$(() => {
   return (
-    <>
+    <div>
       <h1>Test Qwik Framework</h1>
-    </>
+    </div>
   );
 });
 

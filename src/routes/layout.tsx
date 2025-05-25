@@ -40,7 +40,7 @@ export default component$(() => {
             </div>
 
             {/* Navigation Desktop */}
-            <nav class="hidden md:flex items-center space-x-1">
+            <nav class="flex items-center space-x-1">
               {navigation.map((item) => (
                 <Link 
                   key={item.href}
@@ -86,7 +86,7 @@ export default component$(() => {
       </header>
 
       {/* Main Content */}
-      <main class="flex-1">
+      <main class="flex-1 container mx-auto my-8 py-6 px-4 bg-white rounded-lg shadow-md">
         <Slot />
       </main>
 
