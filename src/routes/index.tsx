@@ -4,7 +4,15 @@ import {type DocumentHead } from "@builder.io/qwik-city";
 export default component$(() => {
   return (
     <div>
-      <h1>Test Qwik Framework</h1>
+      <h1 class="text-2xl text-center mt-2 mb-6">Test Qwik Framework</h1>
+      <ul>
+        <li>
+          CMD + R : recherche de tâches
+        </li>
+        <li>
+          CNTRL + R : recherche de tâches
+        </li>
+      </ul>
     </div>
   );
 });

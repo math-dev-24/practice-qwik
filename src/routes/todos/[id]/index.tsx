@@ -1,7 +1,8 @@
 import {$, component$, useSignal} from '@builder.io/qwik';
-import { routeLoader$, Link } from '@builder.io/qwik-city';
-import { TodoInterface } from '~/types/todo.type';
+import {Link, routeLoader$} from '@builder.io/qwik-city';
+import {TodoInterface} from '~/types/todo.type';
 import {todoService} from "~/services/todo.service";
+import {toggleTodoAction as useToggleTodo, updateTodoAction as useUpdateTodo,} from "~/actions/todo.actions";
 
 type TodoResult = {
   status: 'success';
@@ -11,12 +12,7 @@ type TodoResult = {
   message: string;
 };
 
-import {
-  toggleTodoAction as useToggleTodo,
-    updateTodoAction as useUpdateTodo,
-} from "~/actions/todo.actions";
-
-export {useToggleTodo };
+export {useToggleTodo, useUpdateTodo };
 
 
 export const useTodoDetail = routeLoader$<TodoResult>( 
@@ -56,21 +52,13 @@ export default component$(() => {
   const editContent = useSignal<string>('');
 
   const handleUpdate = $(async (id: number, title: string, content: string, completed: boolean) => {
-    console.log('🔄 handleUpdate appelé avec:', id, title, content, completed);
-
-    // Vérifiez que updateTodoAction existe
-    console.log('🔍 updateTodoAction:', updateTodoAction);
-    console.log('🔍 updateTodoAction.submit:', updateTodoAction.submit);
-
     try {
-      console.log('🔄 Avant submit');
-      const result = await updateTodoAction.submit({id, title, content, completed});
-      console.log('🔄 Après submit, résultat:', result);
-    } catch (error) {
-      console.error('❌ Erreur dans handleUpdate:', error);
+      await updateTodoAction.submit({id, title, content, completed});
+    } catch (error: any) {
+      console.error('❌ Error: ', error);
+    } finally {
+      isEditing.value = false;
     }
-
-    isEditing.value = false;
   });
 
   const handleToggle = $(async (id: number, completed: boolean) => {
@@ -197,14 +185,19 @@ export default component$(() => {
                     </button>
                     <button
                       onClick$={() => isEditing.value = false}
-                      class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium"
+                      class="px-6 cursor-pointer py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium"
                     >
                       Annuler
                     </button>
                   </div>
                 </div>
               ) : (
-                <div class="bg-gray-50 rounded-xl p-6">
+                  <div class="bg-gray-50 rounded-xl p-6 cursor-pointer"
+                       onClick$={() => {
+                         isEditing.value = true;
+                         editContent.value = todo.content;
+                       }}
+                  >
                   <p class={`text-lg leading-relaxed ${todo.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                     {todo.content}
                   </p>

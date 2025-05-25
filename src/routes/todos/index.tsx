@@ -1,13 +1,13 @@
-import {$, component$} from "@builder.io/qwik";
+import {$, component$, useSignal, useVisibleTask$} from "@builder.io/qwik";
 import {routeLoader$} from "@builder.io/qwik-city";
 import TodoCard from "~/components/todo/todo-card";
-import type { TodoInterface } from "~/types/todo.type";
+import type {TodoInterface} from "~/types/todo.type";
 import {todoService} from "~/services/todo.service";
 
 import {
     createTodoAction as useCreateTodo,
-    toggleTodoAction as useToggleTodo,
-    deleteTodoAction as useDeleteTodo
+    deleteTodoAction as useDeleteTodo,
+    toggleTodoAction as useToggleTodo
 } from "~/actions/todo.actions";
 import TodoAdd from "~/components/todo/todo-add";
 
@@ -27,6 +27,8 @@ export default component$(() => {
     const toggleTodoAction = useToggleTodo();
     const deleteTodoAction = useDeleteTodo();
 
+    const showAddTodo = useSignal<boolean>(false);
+
   const todos = useInitTodos();
 
   const handleToggle = $(async (id: number, completed: boolean) => {
@@ -37,6 +39,16 @@ export default component$(() => {
       await deleteTodoAction.submit({id});
   });
 
+    useVisibleTask$(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key.toLowerCase() === 'c' && (event.ctrlKey || event.metaKey)) {
+                event.preventDefault();
+                showAddTodo.value = true;
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+    })
+
   return (
     <div class="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-8">
       <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
@@ -45,7 +57,10 @@ export default component$(() => {
           <h1 class="mb-2 text-3xl font-bold text-gray-900">Mes Todos</h1>
           <p class="text-gray-600">Gérez vos tâches efficacement</p>
         </div>
-        <TodoAdd createTodoAction={createTodoAction} />
+        <TodoAdd
+            showAddTodo={showAddTodo}
+            createTodoAction={createTodoAction}
+        />
 
         {/* Grille de cards */}
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

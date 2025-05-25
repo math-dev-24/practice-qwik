@@ -1,8 +1,32 @@
-import { component$, Slot } from '@builder.io/qwik';
-import { Link, useLocation } from '@builder.io/qwik-city';
+import {$, component$, Slot, useSignal, useTask$, useVisibleTask$} from '@builder.io/qwik';
+import {Link, server$, useLocation, useNavigate} from '@builder.io/qwik-city';
+import TodoSearch from "~/components/todo/todo-search";
+import {todoService} from "~/services/todo.service";
+import {TodoInterface} from "~/types/todo.type";
+
+const useTodos = server$(async () => {
+  return await todoService.getAll();
+})
 
 export default component$(() => {
   const location = useLocation();
+  const nav = useNavigate();
+  const showSearchTodos = useSignal<boolean>(false);
+  const todos = useSignal<TodoInterface[]>([]);
+
+  useTask$(async () => {
+    todos.value = await useTodos();
+  })
+
+  useVisibleTask$(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === 'r' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        showSearchTodos.value = true;
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+  })
 
   const navigation = [
     { href: '/', label: 'Home', icon: '🏠' },
@@ -17,6 +41,15 @@ export default component$(() => {
     }
     return location.url.pathname.startsWith(href);
   };
+
+  const goToDetail$ = $(async (id: number) => {
+    showSearchTodos.value = false;
+    await nav('/todos/' + id);
+  });
+
+  const unResearch$ = $(async () => {
+    showSearchTodos.value = false;
+  });
 
   return (
     <div class="min-h-screen flex flex-col bg-gray-50">
@@ -39,6 +72,16 @@ export default component$(() => {
               </Link>
             </div>
 
+            {
+              showSearchTodos.value && (
+                <TodoSearch
+                    todos={todos.value}
+                    goToDetail$={goToDetail$}
+                    unResearch$={unResearch$}
+                />
+              )
+            }
+
             {/* Navigation Desktop */}
             <nav class="flex items-center space-x-1">
               {navigation.map((item) => (
@@ -46,7 +89,7 @@ export default component$(() => {
                   key={item.href}
                   href={item.href}
                   class={`
-                    relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2
+                    relative px-4 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-2
                     ${isActiveLink(item.href)
                       ? 'bg-blue-50 text-blue-700 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -56,22 +99,19 @@ export default component$(() => {
                   <span class="text-base">{item.icon}</span>
                   {item.label}
                   {isActiveLink(item.href) && (
-                    <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full" />
+                    <div class="absolute w-full bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600" />
                   )}
                 </Link>
               ))}
             </nav>
 
-            {/* Actions Desktop */}
             <div class="hidden md:flex items-center gap-3">
-              <button class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+              <button
+                  onClick$={() => showSearchTodos.value = !showSearchTodos.value}
+                  class="p-2 flex gap-1 items-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:border-solid border border-dashed rounded-lg transition-all duration-200"
+              >
                 <span class="text-lg">🔍</span>
-              </button>
-              <button class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200 relative">
-                <span class="text-lg">🔔</span>
-                <div class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                  <span class="text-xs text-white font-bold">3</span>
-                </div>
+                <span>Rechercher (CMD + R)</span>
               </button>
               <div class="w-px h-6 bg-gray-200" />
               <button class="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg transition-colors duration-200">

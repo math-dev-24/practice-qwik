@@ -9,6 +9,7 @@
   "type": "module",
   "scripts": {
     "build": "qwik build",
+    "build-storybook": "storybook build",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.types": "tsc --incremental --noEmit",
@@ -24,6 +25,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:prod": "prisma migrate deploy",
     "start": "vite --open --mode ssr",
+    "storybook": "storybook dev -p 6006",
     "qwik": "qwik"
   },
   "devDependencies": {
@@ -32,6 +34,12 @@
     "@eslint/js": "latest",
     "@prisma/client": "5.3.1",
     "@qwikest/icons": "^0.0.13",
+    "@storybook/addon-essentials": "^8.2.8",
+    "@storybook/addon-links": "^8.2.8",
+    "@storybook/blocks": "^8.2.8",
+    "@storybook/builder-vite": "^8.2.8",
+    "@storybook/html": "^8.2.8",
+    "@storybook/html-vite": "^8.2.8",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "20.14.11",
     "eslint": "9.25.1",
@@ -40,6 +48,8 @@
     "prettier": "3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "prisma": "^5.3.1",
+    "storybook": "^8.2.8",
+    "storybook-framework-qwik": "^0.4.0",
     "tailwindcss": "^4.0.0",
     "typescript": "5.4.5",
     "typescript-eslint": "8.26.1",

@@ -9,6 +9,10 @@ node_modules
 .env
 *.local
 
+# Prisma
+prisma/dev.db
+prisma/migrations
+
 # Cache
 .cache
 .mf
