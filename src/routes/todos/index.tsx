@@ -3,13 +3,13 @@ import {routeLoader$} from "@builder.io/qwik-city";
 import TodoCard from "~/components/todo/todo-card";
 import type {TodoInterface} from "~/types/todo.type";
 import todoService from "~/services/todo.service";
+import TodoAdd from "~/components/todo/todo-add";
 
 import {
     createTodoAction as useCreateTodo,
     deleteTodoAction as useDeleteTodo,
     toggleTodoAction as useToggleTodo
 } from "~/actions/todo.actions";
-import TodoAdd from "~/components/todo/todo-add";
 
 export { useCreateTodo, useToggleTodo, useDeleteTodo };
 
