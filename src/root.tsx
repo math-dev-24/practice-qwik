@@ -16,7 +16,7 @@ export default component$(() => {
     <QwikCityProvider>
       <head>
         <meta charset="utf-8" />
-        {!isDev && (
+        {!import.meta.env.DEV && (
           <link
             rel="manifest"
             href={`${import.meta.env.BASE_URL}manifest.json`}
