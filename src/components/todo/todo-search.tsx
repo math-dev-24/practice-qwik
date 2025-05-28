@@ -1,4 +1,4 @@
-import {$, component$, useSignal, useVisibleTask$} from "@builder.io/qwik";
+import { $, component$, QwikKeyboardEvent, useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import {TodoInterface} from "~/types/todo.type";
 
 export type TodoSearchProps = {
@@ -12,7 +12,7 @@ export default component$(({todos, goToDetail$, unResearch$}: TodoSearchProps) =
 
     const titleInputRef = useSignal<HTMLInputElement>();
 
-    const handleSearch = $(async (e: KeyboardEvent) => {
+    const handleSearch = $(async (e: QwikKeyboardEvent<HTMLInputElement>) => {
         const value = (e.target as HTMLInputElement).value;
         results.value = todos.filter(todo => todo.title.toLowerCase().includes(value.toLowerCase()));
     });
