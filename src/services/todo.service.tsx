@@ -1,8 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import {prisma} from '~/lib/prisma';
 import {TodoInterface} from "~/types/todo.type";
 
+
 class TodoService {
-    private prisma = new PrismaClient();
+    private prisma = prisma;
 
     async delete(id: number): Promise<TodoInterface> {
         try {

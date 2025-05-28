@@ -8,6 +8,11 @@ export default extendConfig(baseConfig, () => {
       ssr: true,
       rollupOptions: {
         input: ["src/entry.vercel-edge.tsx", "@qwik-city-plan"],
+        external: [
+          "@prisma/client",
+          ".prisma/client",
+          ".prisma/client/index-browser"
+        ]
       },
       outDir: ".vercel/output/functions/_qwik-city.func",
     },
